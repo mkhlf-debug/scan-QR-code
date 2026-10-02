@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR</title>
+    <title> Scan QR Code for lectures </title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: system-ui, sans-serif; background: #0f172a; color: white; text-align: center; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-        #reader { width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; border: 2px solid #334155; }
+        #reader { width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; border: 2px solid #334155; background: #1e293b; padding-bottom: 15px; }
         h2 { color: #38bdf8; margin-bottom: 20px;}
         #actionArea { display: none; margin-top: 20px; width: 100%; max-width: 400px; }
         .btn { background: #10b981; color: white; border: none; padding: 15px 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
         .btn:active { background: #059669; }
         .url-box { background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #475569; word-break: break-all; margin-top: 10px; font-size: 12px; color: #94a3b8; }
+        
+        #reader button { background-color: #0ea5e9; color: white; border: none; padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin: 15px auto; display: block; width: 90%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        #reader a { display: inline-block; background-color: #475569; color: white !important; text-decoration: none; padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; margin: 10px auto; width: 80%; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        #reader select { padding: 10px; border-radius: 8px; width: 90%; margin: 10px auto; font-size: 14px; background: #334155; color: white; border: 1px solid #475569; }
     </style>
 </head>
 <body>
-    <h2>scan QR </h2>
+    <h2>ماسح الحضور الذكي</h2>
     
     <div id="reader"></div>
     
@@ -30,24 +34,18 @@
         let finalUrl = "";
 
         function onScanSuccess(decodedText) {
-          
             html5QrcodeScanner.clear();
-            
             finalUrl = decodedText.trim();
-            
-    
             document.getElementById('scannedUrl').innerText = finalUrl;
             document.getElementById('actionArea').style.display = 'block';
         }
 
         function copyAndGo() {
-            
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(finalUrl).then(() => {
                     window.location.href = "https://www.croxyproxy.com/";
                 });
             } else {
-            
                 const tempInput = document.createElement("input");
                 tempInput.value = finalUrl;
                 document.body.appendChild(tempInput);
