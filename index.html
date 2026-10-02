@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ماسح حضور الكلية</title>
+    <title>حضور الكلية - CroxyProxy</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body {
@@ -27,36 +27,83 @@
             overflow: hidden;
             margin-top: 20px;
         }
-        h2 { margin: 0; color: #4DA8DA; }
+        h2 { color: #4DA8DA; margin-bottom: 5px;}
+        .result-container { display: none; margin-top: 30px; }
+        .btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        input.link-box {
+            width: 90%;
+            padding: 10px;
+            font-size: 14px;
+            text-align: center;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            color: black;
+        }
     </style>
 </head>
 <body>
 
-    <h2>ماسح الحضور الذكي</h2>
-    <p>وجه الكاميرا نحو كود المحاضرة</p>
-    
-    <div id="reader"></div>
+    <div id="scanUI">
+        <h2>ماسح الحضور الذكي</h2>
+        <p>وجه الكاميرا نحو الكود</p>
+        <div id="reader"></div>
+    </div>
+
+    <div id="resultUI" class="result-container">
+        <h2 style="color: #4CAF50;">✅ تم التقاط الرابط!</h2>
+        <p>تم تجهيز رابط الكلية، اضغط على الزر لنسخه والذهاب إلى CroxyProxy</p>
+        
+        <!-- حقل يحتوي على الرابط -->
+        <input type="text" id="scannedUrl" class="link-box" readonly>
+        <br>
+        
+        <!-- زر النسخ والتحويل -->
+        <button class="btn" onclick="copyAndRedirect()">نسخ الرابط وافتح كروكسي 🚀</button>
+    </div>
 
     <script>
         function onScanSuccess(decodedText, decodedResult) {
-            // إيقاف الكاميرا بمجرد التقاط الكود
+            // إيقاف الكاميرا وإخفاء واجهة المسح
             html5QrcodeScanner.clear();
+            document.getElementById('scanUI').style.display = 'none';
             
-            // معالجة الرابط واستبدال الـ IP برابط Vercel الخاص بك
-            let finalUrl = decodedText;
-            if(decodedText.includes("193.227.46.44")) {
-                finalUrl = decodedText.replace("http://193.227.46.44", "https://zad-proxy.vercel.app");
-            }
-            
-            // التوجيه الفوري لصفحة تسجيل الدخول
-            window.location.href = finalUrl;
+            // إظهار واجهة النتيجة ووضع الرابط فيها
+            document.getElementById('resultUI').style.display = 'block';
+            document.getElementById('scannedUrl').value = decodedText;
         }
 
         function onScanFailure(error) {
-            // تجاهل الأخطاء أثناء محاولة قراءة الكود
+            // تجاهل الأخطاء أثناء محاولة القراءة
         }
 
-        // تشغيل الكاميرا الخلفية تلقائياً
+        function copyAndRedirect() {
+            // نسخ الرابط لحافظة الهاتف
+            let copyText = document.getElementById("scannedUrl");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); /* للموبايل */
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                // بمجرد نجاح النسخ، يتم تحويلك فوراً لكروكسي
+                window.location.href = "https://www.croxyproxy.com";
+            }).catch(() => {
+                // لو حصل خطأ في النسخ التلقائي (نادر جداً)، يتم النسخ بالطريقة التقليدية والتحويل
+                document.execCommand("copy");
+                window.location.href = "https://www.croxyproxy.com";
+            });
+        }
+
         let html5QrcodeScanner = new Html5QrcodeScanner(
             "reader",
             { fps: 15, qrbox: {width: 250, height: 250} },
