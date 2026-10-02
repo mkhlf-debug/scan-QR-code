@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Scan QR Code for lectures </title>
+    <title>ماسح الحضور</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: system-ui, sans-serif; background: #0f172a; color: white; text-align: center; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
@@ -27,7 +27,7 @@
     <div id="actionArea">
         <h3 style="color: #4ade80; margin: 0;">✅ تم التقاط الكود بنجاح</h3>
         <div id="scannedUrl" class="url-box"></div>
-        <button class="btn" onclick="copyAndGo()">نسخ الرابط وافتح كروكسي 🚀</button>
+        <button class="btn" onclick="copyAndGo()">نسخ الرابط وافتح ProxySite 🚀</button>
     </div>
 
     <script>
@@ -43,7 +43,7 @@
         function copyAndGo() {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(finalUrl).then(() => {
-                    window.location.href = "https://www.croxyproxy.com/";
+                    window.location.href = "https://www.proxysite.com/";
                 });
             } else {
                 const tempInput = document.createElement("input");
@@ -53,7 +53,7 @@
                 tempInput.setSelectionRange(0, 99999);
                 document.execCommand("copy");
                 document.body.removeChild(tempInput);
-                window.location.href = "https://www.croxyproxy.com/";
+                window.location.href = "https://www.proxysite.com/";
             }
         }
 
