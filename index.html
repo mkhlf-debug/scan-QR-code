@@ -3,113 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حضور الكلية - CroxyProxy</title>
+    <title>حضور الكلية الذكي</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: #121212;
-            color: white;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
             text-align: center;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            margin-top: 15px;
         }
         #reader {
             width: 100%;
-            max-width: 400px;
-            background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
-            margin-top: 20px;
+            border: 2px solid #334155;
+            background: black;
         }
-        h2 { color: #4DA8DA; margin-bottom: 5px;}
-        .result-container { display: none; margin-top: 30px; }
+        h2 { color: #38bdf8; margin: 0 0 10px 0; font-size: 22px; }
+        .input-group {
+            margin: 15px 0;
+            text-align: right;
+        }
+        label { font-size: 13px; color: #94a3b8; display: block; margin-bottom: 5px; }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #fff;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
         .btn {
-            background-color: #28a745;
+            background: #0284c7;
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            border-radius: 10px;
+            padding: 12px 20px;
+            font-size: 15px;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
+            width: 100%;
+            margin-top: 8px;
+            transition: 0.2s;
         }
-        input.link-box {
-            width: 90%;
-            padding: 10px;
-            font-size: 14px;
-            text-align: center;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-top: 10px;
-            color: black;
-        }
+        .btn-copy { background: #334155; margin-top: 5px; }
+        .status { margin-top: 15px; font-size: 14px; color: #38bdf8; font-weight: 500; }
     </style>
 </head>
 <body>
 
-    <div id="scanUI">
-        <h2>ماسح الحضور الذكي</h2>
-        <p>وجه الكاميرا نحو الكود</p>
-        <div id="reader"></div>
-    </div>
+    <div class="card">
+        <h2>منظومة الحضور السريع</h2>
+        
+        <!-- قسم حفظ بيانات الطالب -->
+        <div class="input-group">
+            <label>اسم المستخدم / كود الطالب الخاص بك:</label>
+            <input type="text" id="studentUser" placeholder="أدخل اسم المستخدم هنا">
+            <button class="btn btn-copy" onclick="copyUsername()">📋 نسخ اسم المستخدم للحافظة</button>
+        </div>
 
-    <div id="resultUI" class="result-container">
-        <h2 style="color: #4CAF50;">✅ تم التقاط الرابط!</h2>
-        <p>تم تجهيز رابط الكلية، اضغط على الزر لنسخه والذهاب إلى CroxyProxy</p>
-        
-        <!-- حقل يحتوي على الرابط -->
-        <input type="text" id="scannedUrl" class="link-box" readonly>
-        <br>
-        
-        <!-- زر النسخ والتحويل -->
-        <button class="btn" onclick="copyAndRedirect()">نسخ الرابط وافتح كروكسي 🚀</button>
+        <div id="reader"></div>
+        <div id="statusMsg" class="status">الكاميرا جاهزة لمسح الكود...</div>
     </div>
 
     <script>
-        function onScanSuccess(decodedText, decodedResult) {
-            // إيقاف الكاميرا وإخفاء واجهة المسح
-            html5QrcodeScanner.clear();
-            document.getElementById('scanUI').style.display = 'none';
-            
-            // إظهار واجهة النتيجة ووضع الرابط فيها
-            document.getElementById('resultUI').style.display = 'block';
-            document.getElementById('scannedUrl').value = decodedText;
-        }
+        const studentInput = document.getElementById('studentUser');
+        const statusMsg = document.getElementById('statusMsg');
 
-        function onScanFailure(error) {
-            // تجاهل الأخطاء أثناء محاولة القراءة
-        }
+        // استرجاع اسم المستخدم المحفوظ تلقائياً
+        const savedUser = localStorage.getItem('college_username');
+        if (savedUser) studentInput.value = savedUser;
 
-        function copyAndRedirect() {
-            // نسخ الرابط لحافظة الهاتف
-            let copyText = document.getElementById("scannedUrl");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); /* للموبايل */
-            navigator.clipboard.writeText(copyText.value).then(() => {
-                // بمجرد نجاح النسخ، يتم تحويلك فوراً لكروكسي
-                window.location.href = "https://www.croxyproxy.com";
-            }).catch(() => {
-                // لو حصل خطأ في النسخ التلقائي (نادر جداً)، يتم النسخ بالطريقة التقليدية والتحويل
-                document.execCommand("copy");
-                window.location.href = "https://www.croxyproxy.com";
+        studentInput.addEventListener('input', () => {
+            localStorage.setItem('college_username', studentInput.value.trim());
+        });
+
+        function copyUsername() {
+            if (!studentInput.value) {
+                alert('يرجى كتابة اسم المستخدم أولاً');
+                return;
+            }
+            navigator.clipboard.writeText(studentInput.value).then(() => {
+                statusMsg.innerText = "✅ تم نسخ اسم المستخدم، وجه الكاميرا للكود الآن";
             });
+        }
+
+        function onScanSuccess(decodedText) {
+            html5QrcodeScanner.clear();
+            statusMsg.innerText = "⚡ جاري التوجيه لنظام الكلية...";
+
+            let targetUrl = decodedText.trim();
+
+            // استبدال الـ IP بنطاق Vercel السليم للحفاظ على مسار الجلسة كاملاً
+            if (targetUrl.includes("193.227.46.44")) {
+                targetUrl = targetUrl.replace("http://193.227.46.44", "https://zad-proxy.vercel.app");
+                targetUrl = targetUrl.replace("https://193.227.46.44", "https://zad-proxy.vercel.app");
+                targetUrl = targetUrl.replace("193.227.46.44", "zad-proxy.vercel.app");
+            }
+
+            // التأكد من وجود البروتوكول
+            if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
+                targetUrl = "https://" + targetUrl;
+            }
+
+            window.location.href = targetUrl;
         }
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
             "reader",
-            { fps: 15, qrbox: {width: 250, height: 250} },
-            false);
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            { fps: 20, qrbox: {width: 250, height: 250} },
+            false
+        );
+        html5QrcodeScanner.render(onScanSuccess, () => {});
     </script>
-
 </body>
 </html>
